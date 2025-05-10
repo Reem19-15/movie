@@ -9,9 +9,12 @@ import { useDispatch } from "react-redux";
 import { setBannerData, setImageURL } from "./store/movieoSlice";
 
 import Home from "./pages/Home.jsx";
+import Signup from "./pages/Signup.jsx";
+import Login from "./pages/Login.jsx";
 import ExplorePage from "./pages/ExplorePage.jsx";
 import DetailsPage from "./pages/DetailsPage.jsx";
 import SearchPage from "./pages/SearchPage.jsx";
+import Profile from "./pages/ProfilePage.jsx";
 
 function App() {
   const dispatch = useDispatch();
@@ -58,11 +61,14 @@ function App() {
       <Header />
       <div className="min-h-[90vh]">
         <Routes>
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/" element={<Home />} />
           <Route path="/:mediaType" element={<ExplorePage />} />
           <Route path="/:mediaType/:id" element={<DetailsPage />} />
           <Route path="/search" element={<SearchPage />} />
           <Route path="*" element={<div>404 Not Found</div>} />
+          <Route path="/profile" element={<Profile />} />
         </Routes>
       </div>
       <Footer />

@@ -43,7 +43,6 @@ const Home = () => {
         />
       )}
 
-      {/* For data from useFetch, pass loading and error */}
       <HorizontalScollCard
         data={nowPlayingData}
         heading={"Now Playing"}

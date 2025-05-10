@@ -47,6 +47,7 @@ const Header = () => {
           })}
         </nav>
 
+        {/* This is where the new snippet goes, replacing the old user icon div */}
         <div className="ml-auto flex items-center gap-5">
           <form className="flex items-center gap-2" onSubmit={handleSubmit}>
             <input
@@ -60,9 +61,14 @@ const Header = () => {
               <IoSearchOutline />
             </button>
           </form>
-          <div className="w-8 h-8 rounded-full overflow-hidden cursor-pointer active:scale-50 transition-all">
-            <img src={userIcon} width="w-full h-full" />{" "}
-          </div>
+
+          {/* 👇 Link to profile page */}
+          <Link
+            to="/profile"
+            className="w-8 h-8 rounded-full overflow-hidden cursor-pointer active:scale-50 transition-all"
+          >
+            <img src={userIcon} className="w-full h-full" alt="User Icon" />
+          </Link>
         </div>
       </div>
     </header>

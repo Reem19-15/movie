@@ -2,6 +2,7 @@ import { MdHomeFilled } from "react-icons/md";
 import { PiTelevisionFill } from "react-icons/pi";
 import { BiSolidMoviePlay } from "react-icons/bi";
 import { IoSearchOutline } from "react-icons/io5";
+import { FaRegUserCircle } from "react-icons/fa"; // You can choose any other profile icon
 
 export const navigation = [
   {
@@ -14,6 +15,11 @@ export const navigation = [
     href: "movie",
     icon: <BiSolidMoviePlay />,
   },
+  {
+    label: "Profile",
+    href: "/profile",
+    icon: <FaRegUserCircle />,
+  },
 ];
 
 export const mobileNavigation = [
@@ -24,7 +30,7 @@ export const mobileNavigation = [
   },
   ...navigation,
   {
-    label: "search",
+    label: "Search",
     href: "/search",
     icon: <IoSearchOutline />,
   },
