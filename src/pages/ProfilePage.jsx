@@ -1,34 +1,34 @@
-import React from "react"; // Removed unused imports: axios, useEffect, useState
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Card from "../components/Card";
 import { useDispatch, useSelector } from "react-redux";
+import { onAuthStateChanged } from "firebase/auth";
+import { firebaseAuth } from "../utils/firebase-config";
+import { getUsersLikedMovies } from "../store/movieoSlice";
 
 export default function ProfilePage() {
   const movies = useSelector((state) => state.movieoData.movies);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [email, setEmail] = useState(undefined); // Used for triggering useEffect
+  const [user, setUser] = useState(undefined); // Store the firebase user object
 
-  // Uncomment this section when implementing Firebase authentication.
-  // import { onAuthStateChanged } from "firebase/auth";
-  // import { firebaseAuth } from "../utils/firebase-config";
-  // const [email, setEmail] = useState(undefined);
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(firebaseAuth, (currentUser) => {
+      if (currentUser) {
+        setEmail(currentUser.email);
+      } else {
+        navigate("/login");
+      }
+    });
+    return () => unsubscribe();
+  }, [navigate]);
 
-  // useEffect(() => {
-  //   const unsubscribe = onAuthStateChanged(firebaseAuth, (currentUser) => {
-  //     if (currentUser) {
-  //       setEmail(currentUser.email);
-  //     } else {
-  //       navigate("/login");
-  //     }
-  //   });
-  //   return () => unsubscribe();
-  // }, [navigate]);
-
-  // useEffect(() => {
-  //   if (email) {
-  //     dispatch(getUsersLikedMovies(email));
-  //   }
-  // }, [email, dispatch]);
+  useEffect(() => {
+    if (email) {
+      dispatch(getUsersLikedMovies());
+    }
+  }, [user, dispatch]);
 
   return (
     <div className="min-h-screen bg-black text-white">

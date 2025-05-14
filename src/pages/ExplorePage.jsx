@@ -2,12 +2,14 @@ import axios from "axios";
 import React, { useEffect, useState, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import Card from "../components/Card";
+import { useSelector } from "react-redux"; // Import useSelector
 
 const ExplorePage = () => {
   const params = useParams();
   const [pageNo, setPageNo] = useState(1);
   const [data, setData] = useState([]);
   const [totalPageNo, setTotalPageNo] = useState(0);
+  const likedMovies = useSelector((state) => state.movieoData.movies); // Get liked movies from Redux
 
   const BASE_URL = "https://api.themoviedb.org/3";
   const ACCESS_TOKEN = import.meta.env.VITE_REACT_APP_ACCESS_TOKEN;
@@ -44,7 +46,7 @@ const ExplorePage = () => {
 
   useEffect(() => {
     fetchData();
-  }, [pageNo, params.mediaType]); // Added params.mediaType to dependency array
+  }, [pageNo, params.mediaType]);
 
   useEffect(() => {
     setPageNo(1);
@@ -57,6 +59,14 @@ const ExplorePage = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [handleScroll]);
 
+  // Function to check if a movie is liked
+  const isMovieLiked = (movieId, mediaType) => {
+    return likedMovies.some(
+      (likedMovie) =>
+        likedMovie.movieId === movieId && likedMovie.mediaType === mediaType
+    );
+  };
+
   return (
     <div className="py-16">
       <div className="container mx-auto">
@@ -68,8 +78,9 @@ const ExplorePage = () => {
           {data.map((exploreData) => (
             <Card
               data={exploreData}
-              key={exploreData.id + "exploreSEction"}
+              key={exploreData.id + "exploreSection"}
               media_type={params.mediaType}
+              isLiked={isMovieLiked(exploreData.id, params.mediaType)} // Pass the isLiked prop
             />
           ))}
         </div>

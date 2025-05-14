@@ -1,11 +1,18 @@
 import React from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux"; // Import useDispatch
 import moment from "moment";
 import { Link } from "react-router-dom";
+import { toggleLikedMovie } from "../store/movieoSlice";
 
-const Card = ({ data, trending, index, media_type: propMediaType }) => {
+const Card = ({
+  data,
+  trending,
+  index,
+  media_type: propMediaType,
+  isLiked,
+}) => {
   const imageURL = useSelector((state) => state.movieoData.imageURL);
-
+  const dispatch = useDispatch(); // Get the dispatch function
   let type = data.media_type || propMediaType;
 
   if (type === "person") {
@@ -21,6 +28,21 @@ const Card = ({ data, trending, index, media_type: propMediaType }) => {
   }
 
   const displayDate = data.release_date || data.first_air_date;
+
+  const handleLikeToggle = (e) => {
+    e.preventDefault(); // Prevent the Link from navigating when liking
+    e.stopPropagation(); // Stop event propagation to the Link if needed
+    dispatch(
+      toggleLikedMovie({
+        movieId: data.id,
+        mediaType: type,
+        isLiked: isLiked, // The current liked status
+        title: data?.title || data?.name,
+        poster_path: data?.poster_path,
+        release_date: data?.release_date || data?.first_air_date,
+      })
+    );
+  };
 
   return (
     <Link
@@ -45,6 +67,15 @@ const Card = ({ data, trending, index, media_type: propMediaType }) => {
         </div>
       )}
 
+      <div
+        className="absolute top-2 right-2 z-10 cursor-pointer"
+        onClick={handleLikeToggle}
+      >
+        <FontAwesomeIcon
+          icon={isLiked ? faHeartSolid : faHeartRegular}
+          className={isLiked ? "text-red-500 text-xl" : "text-white text-xl"}
+        />
+      </div>
       <div className="absolute bottom-0 h-16 backdrop-blur-3xl w-full bg-black/60 p-2">
         <h2 className="text-ellipsis line-clamp-1 text-lg font-semibold">
           {data?.title || data?.name}
