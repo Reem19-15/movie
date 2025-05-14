@@ -43,7 +43,7 @@ export default function Login() {
                     [e.target.name]: e.target.value,
                   })
                 }
-                className="p-2 w-60 text-lg text-black"
+                className="p-2 w-60 text-lg text-white"
               />
               <input
                 type="password"
@@ -56,7 +56,7 @@ export default function Login() {
                     [e.target.name]: e.target.value,
                   })
                 }
-                className="p-2 w-60 text-lg text-black"
+                className="p-2 w-60 text-lg text-white"
               />
               <button
                 onClick={handleLogIn}

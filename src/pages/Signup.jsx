@@ -51,7 +51,7 @@ export default function Signup() {
                   [e.target.name]: e.target.value,
                 })
               }
-              className="p-6 text-black text-xl border border-black focus:outline-none"
+              className="p-6 text-white text-xl border border-white focus:outline-none"
             />
             {showPassword && (
               <input
@@ -65,7 +65,7 @@ export default function Signup() {
                     [e.target.name]: e.target.value,
                   })
                 }
-                className="p-6 text-black text-xl border border-black focus:outline-none"
+                className="p-6 text-white text-xl border border-white focus:outline-none"
               />
             )}
             {!showPassword && (
