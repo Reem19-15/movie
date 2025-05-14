@@ -2,6 +2,7 @@ import React from "react";
 import { useSelector, useDispatch } from "react-redux"; // Import useDispatch
 import moment from "moment";
 import { Link } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { toggleLikedMovie } from "../store/movieoSlice";
 
 const Card = ({
