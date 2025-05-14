@@ -1,8 +1,8 @@
 import React from "react";
-import { useSelector, useDispatch } from "react-redux"; // Import useDispatch
+import { useSelector, useDispatch } from "react-redux";
 import moment from "moment";
 import { Link } from "react-router-dom";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { AiFillHeart, AiOutlineHeart } from "react-icons/ai"; // ✅ React Icons
 import { toggleLikedMovie } from "../store/movieoSlice";
 
 const Card = ({
@@ -13,13 +13,10 @@ const Card = ({
   isLiked,
 }) => {
   const imageURL = useSelector((state) => state.movieoData.imageURL);
-  const dispatch = useDispatch(); // Get the dispatch function
+  const dispatch = useDispatch();
   let type = data.media_type || propMediaType;
 
-  if (type === "person") {
-    return null;
-  }
-
+  if (type === "person") return null;
   if (!type) {
     console.warn(
       "Card component received data without a valid media_type:",
@@ -31,13 +28,13 @@ const Card = ({
   const displayDate = data.release_date || data.first_air_date;
 
   const handleLikeToggle = (e) => {
-    e.preventDefault(); // Prevent the Link from navigating when liking
-    e.stopPropagation(); // Stop event propagation to the Link if needed
+    e.preventDefault();
+    e.stopPropagation();
     dispatch(
       toggleLikedMovie({
         movieId: data.id,
         mediaType: type,
-        isLiked: isLiked, // The current liked status
+        isLiked: isLiked,
         title: data?.title || data?.name,
         poster_path: data?.poster_path,
         release_date: data?.release_date || data?.first_air_date,
@@ -72,11 +69,13 @@ const Card = ({
         className="absolute top-2 right-2 z-10 cursor-pointer"
         onClick={handleLikeToggle}
       >
-        <FontAwesomeIcon
-          icon={isLiked ? faHeartSolid : faHeartRegular}
-          className={isLiked ? "text-red-500 text-xl" : "text-white text-xl"}
-        />
+        {isLiked ? (
+          <AiFillHeart className="text-red-500 text-xl" />
+        ) : (
+          <AiOutlineHeart className="text-white text-xl" />
+        )}
       </div>
+
       <div className="absolute bottom-0 h-16 backdrop-blur-3xl w-full bg-black/60 p-2">
         <h2 className="text-ellipsis line-clamp-1 text-lg font-semibold">
           {data?.title || data?.name}
