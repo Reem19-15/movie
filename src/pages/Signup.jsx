@@ -1,104 +1,100 @@
-// signup.jsx
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { firebaseAuth } from "../utils/firebase-config";
 import BackGround from "../components/BackGround";
+import Header from "../components/logo.jsx";
+import { useNavigate } from "react-router-dom";
+import {
+  onAuthStateChanged,
+  createUserWithEmailAndPassword,
+} from "firebase/auth";
+import { firebaseAuth } from "../utils/firebase-config";
 
 export default function Signup() {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const [formValues, setFormValues] = useState({ email: "", password: "" });
-  const [error, setError] = useState("");
 
   const handleSignIn = async () => {
     try {
       const { email, password } = formValues;
       await createUserWithEmailAndPassword(firebaseAuth, email, password);
-      navigate("/");
-      setError("");
     } catch (err) {
       console.log(err);
-      setError(err.message);
     }
   };
 
-  return (
-    <div className="relative h-screen w-screen overflow-hidden">
-      <BackGround />
+  onAuthStateChanged(firebaseAuth, (currentUser) => {
+    if (currentUser) navigate("/");
+  });
 
-      <div className="absolute top-0 left-0 bg-opacity-35 w-full h-full flex items-center justify-center text-white z-10 p-4">
-        <div className="container mx-auto max-w-3xl flex flex-col items-center justify-center text-center">
-          <div className="flex flex-col gap-4 text-2xl">
-            <h1 className="px-6">Unlimited Movies, TV shows and more</h1>
-            <h4>Watch anytime. Cancel anytime.</h4>
-            <h6>
+  return (
+    <div className="relative">
+      <BackGround />
+      <div className="absolute top-0 left-0 bg-[rgba(36,36,36,0.35)] h-screen w-screen grid grid-rows-[100vh_80vh] text-white">
+        <Header login />
+
+        <div className="flex flex-col items-center justify-center gap-4 max-w-7xl mx-auto p-8 w-full">
+          <div className="flex flex-col gap-4 text-center text-2xl bg-[rgba(0,0,0,0.75)] p-8 rounded-lg mb-8">
+            <h1 className="text-5xl mb-4 px-8">
+              Unlimited Movies, TV shows and more
+            </h1>
+            <h4 className="text-2xl mb-4">Watch anytime. Cancel anytime.</h4>
+            <h6 className="text-lg font-normal text-gray-200">
               Ready to watch? Enter your email to create or restart your
               membership.
             </h6>
           </div>
 
-          <div className="w-full mt-8">
-            <div className="grid gap-4">
+          <div
+            className={`grid ${
+              showPassword ? "grid-cols-2" : "grid-cols-[2fr_1fr]"
+            } w-full max-w-3xl mx-auto bg-[rgba(0,0,0,0.75)] p-8 rounded-lg`}
+          >
+            <input
+              type="email"
+              placeholder="Your email address"
+              name="email"
+              value={formValues.email}
+              onChange={(e) =>
+                setFormValues({
+                  ...formValues,
+                  [e.target.name]: e.target.value,
+                })
+              }
+              className="text-black border border-black p-6 text-lg rounded focus:outline-none"
+            />
+            {showPassword && (
               <input
-                type="email"
-                placeholder="Your email address"
-                name="email"
-                value={formValues.email}
+                type="password"
+                placeholder="Your Password"
+                name="password"
+                value={formValues.password}
                 onChange={(e) =>
                   setFormValues({
                     ...formValues,
                     [e.target.name]: e.target.value,
                   })
                 }
-                className="p-6 text-white text-xl border border-white focus:outline-none bg-transparent"
+                className="text-black border border-black p-6 text-lg rounded focus:outline-none"
               />
-              {showPassword && (
-                <input
-                  type="password"
-                  placeholder="Your Password"
-                  name="password"
-                  value={formValues.password}
-                  onChange={(e) =>
-                    setFormValues({
-                      ...formValues,
-                      [e.target.name]: e.target.value,
-                    })
-                  }
-                  className="p-6 text-white text-xl border border-white focus:outline-none bg-transparent"
-                />
-              )}
-              {!showPassword && (
-                <button
-                  onClick={() => setShowPassword(true)}
-                  className="p-2 bg-[#ff0101] text-white font-bold text-lg"
-                >
-                  Get Started
-                </button>
-              )}
-            </div>
-
-            {showPassword && (
+            )}
+            {!showPassword && (
               <button
-                onClick={handleSignIn}
-                className="mt-4 p-2 bg-[#ff0101] text-white font-bold text-lg rounded"
+                onClick={() => setShowPassword(true)}
+                className="px-4 py-2 bg-[#8b44f7] hover:bg-[#7433e0] text-white font-bold text-lg rounded transition-colors duration-200"
               >
-                Signup
+                Get Started
               </button>
             )}
           </div>
 
-          {error && <div className="text-red-500 text-sm mt-4">{error}</div>}
-
-          <div className="mt-6 text-lg">
-            <span>Already have an account? </span>
-            <span
-              className="text-[#ff0101] hover:underline cursor-pointer"
-              onClick={() => navigate("/login")}
+          {showPassword && (
+            <button
+              onClick={handleSignIn}
+              className="mt-4 px-4 py-2 bg-[#8b44f7] hover:bg-[#7433e0] text-white font-bold text-lg rounded min-w-[200px] mx-auto transition-colors duration-200"
             >
-              Login
-            </span>
-          </div>
+              Signup
+            </button>
+          )}
         </div>
       </div>
     </div>
