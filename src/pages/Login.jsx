@@ -25,7 +25,7 @@ export default function Login() {
     <div className="relative h-screen w-screen overflow-hidden">
       <BackGround />
 
-      <div className="absolute top-0 left-0 bg-black bg-opacity-35 w-full h-full flex flex-col items-center justify-center text-white z-10">
+      <div className="absolute top-0 left-0  bg-opacity-35 w-full h-full flex flex-col items-center justify-center text-white z-10">
         <div className="flex flex-col items-center justify-center">
           <div className="p-8 bg-black bg-opacity-70 w-fit flex flex-col items-center justify-center gap-8 text-white rounded-lg">
             <div className="text-3xl font-bold">

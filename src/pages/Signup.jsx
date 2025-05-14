@@ -27,7 +27,7 @@ export default function Signup() {
     <div className="relative h-screen w-screen overflow-hidden">
       <BackGround />
 
-      <div className="absolute top-0 left-0 bg-black bg-opacity-35 w-full h-full flex flex-col items-center justify-center text-white z-10 p-4">
+      <div className="absolute top-0 left-0 bg-opacity-35 w-full h-full flex flex-col items-center justify-center text-white z-10 p-4">
         <div className="flex flex-col items-center gap-4 text-center text-2xl">
           <h1 className="px-36">Unlimited Movies, TV shows and more</h1>
           <h4>Watch anytime. Cancel anytime.</h4>
