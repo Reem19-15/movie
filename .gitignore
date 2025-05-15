@@ -1,0 +1,26 @@
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Node modules and build outputs
+node_modules/
+dist/
+dist-ssr/
+.local/
+
+# Frontend specific (if not already covered by general rules)
+Frontend/node_modules/
+Frontend/dist/
+Frontend/.env # crucial for frontend .env
+
+# Backend specific
+Backend/node_modules/
+Backend/dist/ # If your backend builds to a dist folder
+Backend/.env # For backend environment variables
+Backend/*.json # To broadly catch any other json files, but be specific if needed
+# VERY IMPORTANT: The specific Firebase Admin SDK key
+Backend/movie-recomendation-5148a-firebase-adminsdk-fbsvc-d35fd62da1.json
