@@ -1,91 +1,117 @@
+// movieoSlice.js
+
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
-import { firebaseAuth } from "../utils/firebase-config";
+// REMOVED: import axios from "axios";
 
-const BACKEND_URL =
-  import.meta.env.VITE_REACT_APP_BACKEND_URL || "http://localhost:5000";
+import { firebaseDb } from "../utils/firebase-config"; // IMPORTED: Firebase Firestore instance
+import {
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+  arrayUnion,
+  arrayRemove,
+} from "firebase/firestore"; // IMPORTED: Firestore functions
 
-// Async thunk to fetch user's liked movies from the backend
+// REMOVED: const BACKEND_URL, as it's no longer used
+
 export const getUsersLikedMovies = createAsyncThunk(
-  "Netflix/getLikedMovies",
-  async (_, { rejectWithValue }) => {
+  "movieo/getUsersLikedMovies",
+  async (_, { getState, rejectWithValue }) => {
     try {
-      const user = firebaseAuth.currentUser;
-      if (!user) {
-        return rejectWithValue("No authenticated user found. Please log in.");
-      }
-      const idToken = await user.getIdToken(); // Get the Firebase ID token
+      const { user } = getState();
+      const userId = user.firebaseUser?.uid;
 
-      const response = await axios.get(
-        `${BACKEND_URL}/api/users/me/liked-movies`,
-        {
-          headers: {
-            Authorization: `Bearer ${idToken}`, // Send the ID token in the Authorization header
-          },
-        }
-      );
-      return response.data;
+      if (!userId) {
+        console.warn(
+          "No Firebase user found. Returning empty liked movies array."
+        );
+        return [];
+      }
+
+      const userDocRef = doc(firebaseDb, "users", userId);
+      const userDocSnap = await getDoc(userDocRef);
+
+      if (userDocSnap.exists()) {
+        const userData = userDocSnap.data();
+        return userData.likedMovies || [];
+      } else {
+        console.log(
+          `User document for ${userId} does not exist. No liked movies found.`
+        );
+        return [];
+      }
     } catch (error) {
-      console.error(
-        "Error fetching liked movies:",
-        error.response?.data?.message || error.message
-      );
-      return rejectWithValue(error.response?.data?.message || error.message); // Reject with error message
+      console.error("Error fetching users liked movies from Firestore:", error);
+      return rejectWithValue(error.message || "Failed to fetch liked movies.");
     }
   }
 );
 
-// Async thunk to add or remove a movie from the liked list via the backend
 export const toggleLikedMovie = createAsyncThunk(
-  "Netflix/toggleLikedMovie",
+  "movieo/toggleLikedMovie",
   async (
     { movieId, mediaType, isLiked, title, poster_path, release_date },
-    { rejectWithValue, dispatch }
+    { getState, dispatch, rejectWithValue }
   ) => {
     try {
-      const user = firebaseAuth.currentUser;
-      if (!user) {
-        return rejectWithValue(
-          "No authenticated user found. Please log in to like/unlike movies."
-        );
+      const { user } = getState();
+      const userId = user.firebaseUser?.uid;
+
+      if (!userId) {
+        return rejectWithValue("User not authenticated. Please log in.");
       }
-      const idToken = await user.getIdToken();
+
+      const userDocRef = doc(firebaseDb, "users", userId);
+      const movieData = {
+        movieId: movieId,
+        mediaType: mediaType,
+        title: title,
+        poster_path: poster_path,
+        release_date: release_date,
+      };
 
       if (isLiked) {
-        // If the movie is currently liked, send a DELETE request to remove it
-        await axios.delete(
-          `${BACKEND_URL}/api/users/me/liked-movies/${movieId}/${mediaType}`,
-          {
-            headers: { Authorization: `Bearer ${idToken}` },
-          }
+        // If currently liked, remove it
+        await updateDoc(userDocRef, {
+          likedMovies: arrayRemove(movieData),
+        });
+        console.log(
+          `Movie ID ${movieId} (${mediaType}) removed for user ${userId}`
         );
       } else {
-        // If the movie is not liked, send a POST request to add it
-        await axios.post(
-          `${BACKEND_URL}/api/users/me/liked-movies`,
-          { movieId, mediaType, title, poster_path, release_date },
-          { headers: { Authorization: `Bearer ${idToken}` } }
+        // If not liked, add it
+        await setDoc(
+          userDocRef,
+          {
+            likedMovies: arrayUnion(movieData),
+          },
+          { merge: true }
+        ); // Use merge: true to avoid overwriting other fields
+        console.log(
+          `Movie ID ${movieId} (${mediaType}) added for user ${userId}`
         );
       }
 
+      // After adding/removing, dispatch getUsersLikedMovies to update Redux state
       dispatch(getUsersLikedMovies());
-      return null;
+
+      return { action: isLiked ? "removed" : "added", movieId, mediaType };
     } catch (error) {
-      console.error(
-        "Error toggling liked movie:",
-        error.response?.data?.message || error.message
-      );
-      return rejectWithValue(error.response?.data?.message || error.message);
+      console.error("Error toggling liked movie in Firestore:", error);
+      return rejectWithValue(error.message || "Failed to toggle liked movie.");
     }
   }
 );
 
 export const movieoSlice = createSlice({
-  name: "Netflix",
+  name: "Netflix", // Consider renaming this to "movieo" for consistency with your slice name
   initialState: {
     bannerData: [],
     imageURL: "",
-    movies: [], // To store the liked movies
+    movies: [], // This will now store the liked movies from Firestore
+    status: "idle", // Added status to track async operations
+    error: null, // Added error to store potential errors
   },
   reducers: {
     setBannerData: (state, action) => {
@@ -100,24 +126,30 @@ export const movieoSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Handle the state changes for the getUsersLikedMovies thunk
+      // Reducers for getUsersLikedMovies
       .addCase(getUsersLikedMovies.pending, (state) => {
         state.status = "loading";
+        state.error = null;
       })
       .addCase(getUsersLikedMovies.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.movies = action.payload;
+        state.movies = action.payload; // Update liked movies from Firestore
       })
       .addCase(getUsersLikedMovies.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload;
-        state.movies = [];
+        state.movies = []; // Clear liked movies on error
       })
 
-      .addCase(toggleLikedMovie.pending, (state) => {})
-      .addCase(toggleLikedMovie.fulfilled, (state, action) => {})
+      // Reducers for toggleLikedMovie (no direct state change here, as getUsersLikedMovies is dispatched)
+      .addCase(toggleLikedMovie.pending, (state) => {
+        // Optional: you can set a specific loading state for this action if needed
+      })
+      .addCase(toggleLikedMovie.fulfilled, (state, action) => {
+        // The actual 'movies' array update happens via getUsersLikedMovies dispatch
+      })
       .addCase(toggleLikedMovie.rejected, (state, action) => {
-        state.error = action.payload;
+        state.error = action.payload; // Store error if the toggle operation fails
       });
   },
 });
